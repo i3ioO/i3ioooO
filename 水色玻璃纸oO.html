@@ -1,0 +1,1510 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>水色玻璃纸</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  @font-face {
+    font-family: 'MizuFont';
+    src: url('https://files.catbox.moe/03anw7.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+  :root {
+    --c1: #FBFCFF;
+    --c2: #F3FBFE;
+    --c3: #EBF4FF;
+    --c4: #E1ECFD;
+    --c5: #D3DEF1;
+    --c6: #CCD7E8;
+    --c7: #BDCBDF;
+    --c8: #BDDAEA;
+    --c9: #CFD4DE;
+    --ca: #9BB4DF;
+    --cb: #8AAADE;
+    --text: #3d526b;
+    --text-light: #7e9bb5;
+    --text-dark: #243349;
+    --r: 16px;
+    --r-sm: 10px;
+    --blur: blur(22px) saturate(1.8) brightness(1.04);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    font-family: 'MizuFont', 'Noto Sans SC', -apple-system, sans-serif;
+    min-height:100vh; min-height:100dvh;
+    overflow-x:hidden;
+    color: var(--text);
+    position:relative;
+    background: var(--c3);
+  }
+
+  /* ═══ BACKGROUND ═══ */
+  .bg { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+
+  .bg-glow {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 65% 55% at 12% 18%, rgba(189,218,234,0.65) 0%, transparent 58%),
+      radial-gradient(ellipse 55% 60% at 88% 8%,  rgba(225,236,253,0.7)  0%, transparent 52%),
+      radial-gradient(ellipse 75% 42% at 50% 92%, rgba(204,215,232,0.58) 0%, transparent 58%),
+      radial-gradient(ellipse 48% 52% at 92% 72%, rgba(155,180,223,0.32) 0%, transparent 52%),
+      radial-gradient(ellipse 60% 45% at 25% 68%, rgba(235,244,255,0.5)  0%, transparent 55%),
+      linear-gradient(165deg, #F3FBFE 0%, #EBF4FF 35%, #E1ECFD 65%, #D3DEF1 100%);
+    animation: glow-drift 22s ease-in-out infinite alternate;
+  }
+  @keyframes glow-drift {
+    0%   { transform: scale(1)    translate(0,0); }
+    33%  { transform: scale(1.03) translate(10px,-7px); }
+    66%  { transform: scale(0.97) translate(-8px,10px); }
+    100% { transform: scale(1.02) translate(5px,-4px); }
+  }
+
+  .bg-grain {
+    position:absolute; inset:0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)'/%3E%3C/svg%3E");
+    background-size:220px 220px; opacity:0.028; mix-blend-mode:overlay;
+  }
+
+  /* ═══ BUBBLES — fixed ═══ */
+  .bubble-layer { position:fixed; inset:0; z-index:1; pointer-events:none; overflow:hidden; }
+
+  .bubble {
+    position:absolute;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 32% 28%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.6) 7%, transparent 26%),
+      radial-gradient(circle at 70% 75%, rgba(255,255,255,0.5) 0%, transparent 16%),
+      radial-gradient(circle at 50% 50%, transparent 50%, rgba(189,218,234,0.25) 66%, rgba(155,180,223,0.42) 80%, rgba(255,255,255,0.65) 93%, rgba(255,255,255,0.35) 100%);
+    border: 1.5px solid rgba(255,255,255,0.8);
+    box-shadow:
+      inset 0 0 22px rgba(255,255,255,0.14),
+      inset 2px 2px 10px rgba(255,255,255,0.45),
+      0 6px 24px rgba(138,170,222,0.14);
+    animation: bubble-rise linear infinite;
+    pointer-events: none; /* 由全局捕获处理点击，保持下方交互穿透 */
+  }
+  .bubble.shimmer { animation: bubble-rise linear infinite, bubble-hue 9s ease-in-out infinite; }
+
+  /* 气泡上升动画 */
+  @keyframes bubble-rise {
+    0%   { transform: translateY(0)      translateX(0px)   scale(0.72); opacity:0; }
+    5%   { opacity:0.88; }
+    28%  { transform: translateY(-28vh)  translateX(20px)  scale(1.02); }
+    54%  { transform: translateY(-56vh)  translateX(-14px) scale(1.04); }
+    80%  { transform: translateY(-84vh)  translateX(22px)  scale(0.98); opacity:0.75; }
+    100% { transform: translateY(-112vh) translateX(6px)   scale(0.88); opacity:0; }
+  }
+  @keyframes bubble-hue {
+    0%,100% { filter: hue-rotate(0deg)   brightness(1); }
+    25%     { filter: hue-rotate(28deg)  brightness(1.06); }
+    50%     { filter: hue-rotate(-18deg) brightness(0.97); }
+    75%     { filter: hue-rotate(38deg)  brightness(1.04); }
+  }
+
+  /* 气泡戳破动画 */
+  @keyframes bubble-pop {
+    0% { transform: scale(1); opacity: 1; }
+    30% { transform: scale(1.2); opacity: 0.9; }
+    100% { transform: scale(0); opacity: 0; }
+  }
+  .bubble.pop {
+    animation: bubble-pop 0.2s ease-out forwards !important;
+    pointer-events: none;
+  }
+
+  /* ═══ PAGE ═══ */
+  .page-wrap { position:relative; z-index:2; }
+
+  /* ═══ TOPBAR ═══ */
+  .topbar {
+    position:sticky; top:0; z-index:100;
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    background: rgba(235,244,255,0.72);
+    border-bottom: 1px solid rgba(255,255,255,0.65);
+    box-shadow: 0 1px 0 rgba(189,218,234,0.35), 0 2px 20px rgba(138,170,222,0.1);
+    padding: 10px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+
+  .app-title {
+    font-size:15px; font-weight:700; letter-spacing:1px;
+    background: linear-gradient(135deg, #8AAADE, #9BB4DF, #BDDAEA);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    display:flex; align-items:center; gap:6px;
+  }
+  .app-title-emoji { font-size:15px; -webkit-text-fill-color:initial; display:inline-block; }
+
+  .topbar-btns { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+
+  .tb {
+    font-family:'MizuFont','Noto Sans SC',sans-serif;
+    font-size:11px; font-weight:500; padding:6px 14px;
+    border:none; border-radius:20px; cursor:pointer;
+    transition: all 0.25s cubic-bezier(0.34,1.4,0.64,1);
+    white-space:nowrap; letter-spacing:0.5px;
+    position:relative; overflow:hidden;
+  }
+  .tb::before {
+    content:''; position:absolute; inset:0; border-radius:inherit;
+    background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, transparent 60%);
+    pointer-events:none;
+  }
+  .tb:active { transform:scale(0.93); }
+
+  .tb-run {
+    background: linear-gradient(140deg, var(--ca), var(--cb));
+    color:#fff;
+    box-shadow: 0 2px 12px rgba(138,170,222,0.4), 0 1px 3px rgba(138,170,222,0.2);
+  }
+  .tb-run:hover { box-shadow:0 4px 22px rgba(138,170,222,0.55); transform:translateY(-1.5px); }
+  .tb-edit {
+    background: linear-gradient(140deg, var(--c8), var(--ca));
+    color:#fff; box-shadow:0 2px 12px rgba(189,218,234,0.4); display:none;
+  }
+  .tb-edit:hover { transform:translateY(-1.5px); }
+  .tb-ghost {
+    background: rgba(255,255,255,0.52); color:var(--cb);
+    border: 1px solid rgba(189,218,234,0.6); backdrop-filter:blur(8px);
+  }
+  .tb-ghost:hover { background:rgba(225,236,253,0.72); border-color:var(--ca); transform:translateY(-1.5px); }
+
+  /* ═══ EDITOR PAGE ═══ */
+  .editor-page { padding:18px 16px; display:flex; flex-direction:column; gap:16px; }
+
+  /* ═══ GLASS BASE ═══ */
+  .glass {
+    position:relative;
+    background: linear-gradient(160deg, rgba(255,255,255,0.84) 0%, rgba(235,244,255,0.7) 45%, rgba(211,222,241,0.6) 100%);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border-radius: var(--r);
+    border: 1px solid rgba(255,255,255,0.9);
+    box-shadow:
+      0 1px 0 0 rgba(255,255,255,1) inset,
+      -1px 0 0 0 rgba(255,255,255,0.62) inset,
+      0 -1px 0 0 rgba(189,218,234,0.28) inset,
+      0 6px 32px rgba(138,170,222,0.13),
+      0 2px 8px rgba(155,180,223,0.09);
+    overflow:hidden;
+  }
+  .glass::after {
+    content:''; position:absolute; inset:0; border-radius:inherit;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
+    background-size:160px 160px; opacity:0.032; mix-blend-mode:overlay; pointer-events:none; z-index:1;
+  }
+
+  .editor-section { animation: slide-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+  @keyframes slide-up { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+
+  /* 雪花角落装饰 */
+  .deco-snowflakes {
+    position:absolute; inset:0; pointer-events:none; z-index:0;
+    border-radius:inherit;
+  }
+  .deco-flake {
+    position:absolute;
+    color: #9BB4DF;
+    pointer-events:none;
+    line-height:1;
+    user-select:none;
+  }
+
+  .editor-toolbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:11px 16px;
+    border-bottom: 1px solid rgba(189,218,234,0.22);
+    background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, transparent 100%);
+    position:relative; z-index:2;
+  }
+
+  .editor-label {
+    font-size:11px; font-weight:500; letter-spacing:2px;
+    color:var(--text-light); display:flex; align-items:center; gap:7px; text-transform:uppercase;
+  }
+  .label-dot {
+    width:5px; height:5px; border-radius:50%; background:var(--ca);
+    animation: dot-breathe 3s ease-in-out infinite;
+  }
+  @keyframes dot-breathe {
+    0%,100% { transform:scale(1); box-shadow:0 0 0 0 rgba(155,180,223,0.4); }
+    50%     { transform:scale(1.4); box-shadow:0 0 0 4px rgba(155,180,223,0); }
+  }
+
+  .editor-actions { display:flex; gap:5px; position:relative; z-index:2; }
+
+  .ea {
+    font-family:'MizuFont','Noto Sans SC',sans-serif; font-size:10px; font-weight:500;
+    padding:4px 11px; border: 1px solid rgba(189,218,234,0.45); border-radius:20px;
+    background: rgba(255,255,255,0.6); color:var(--cb); cursor:pointer;
+    transition:all 0.2s; white-space:nowrap; letter-spacing:0.5px;
+    display:flex; align-items:center; gap:5px;
+  }
+  .ea svg { width:11px; height:11px; fill:none; stroke:currentColor; stroke-width:1.8; flex-shrink:0; }
+  .ea:hover { background:rgba(225,236,253,0.85); border-color:var(--ca); transform:translateY(-1px); box-shadow:0 2px 10px rgba(138,170,222,0.18); }
+  .ea:active { transform:scale(0.93); }
+
+  .code-area {
+    width:100%; min-height:210px; max-height:55vh;
+    padding:16px 18px; border:none; outline:none; resize:vertical;
+    font-family:'Menlo','Consolas','JetBrains Mono',monospace;
+    font-size:12.5px; line-height:1.75; color:var(--text-dark);
+    background:transparent; tab-size:2; -moz-tab-size:2; transition:all 0.3s;
+    position:relative; z-index:2;
+  }
+  .code-area.expanded { height:70vh; max-height:80vh; }
+  .code-area::placeholder { color:rgba(126,155,181,0.45); }
+  .code-area::-webkit-scrollbar { width:3px; }
+  .code-area::-webkit-scrollbar-track { background:transparent; }
+  .code-area::-webkit-scrollbar-thumb { background:rgba(189,218,234,0.55); border-radius:2px; }
+
+  /* ═══ FAB ═══ */
+  .run-fab-wrap {
+    display:flex; justify-content:center; align-items:center; padding:4px 0 6px;
+    animation: slide-up 0.5s 0.08s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .run-fab {
+    width:60px; height:60px; border-radius:50%; border:none; cursor:pointer;
+    position:relative; overflow:visible;
+    background: linear-gradient(145deg, #C8DCF0 0%, #9BB4DF 45%, #8AAADE 100%);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.6) inset,
+      0 -1px 0 rgba(138,170,222,0.3) inset,
+      0 6px 28px rgba(138,170,222,0.42),
+      0 2px 8px rgba(155,180,223,0.25);
+    display:flex; align-items:center; justify-content:center;
+    transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .run-fab:hover { transform:scale(1.1) translateY(-2px); box-shadow:0 10px 40px rgba(138,170,222,0.55); }
+  .run-fab:active { transform:scale(0.92); }
+  .run-fab svg { width:22px; height:22px; fill:#fff; margin-left:2px; position:relative; z-index:2; }
+
+  .fab-ring  { position:absolute; border-radius:50%; border:1.5px solid rgba(189,218,234,0.55); inset:-7px;  animation:ring-spin 10s linear infinite; }
+  .fab-ring-2{ position:absolute; border-radius:50%; border:1px dashed rgba(155,180,223,0.35);   inset:-15px; animation:ring-spin 16s linear infinite reverse; }
+  @keyframes ring-spin { to { transform:rotate(360deg); } }
+
+  .fab-ripple {
+    position:absolute; border-radius:50%; background:rgba(255,255,255,0.45);
+    transform:scale(0); animation:fab-ripple 0.55s ease-out forwards; pointer-events:none;
+  }
+  @keyframes fab-ripple { to { transform:scale(3.2); opacity:0; } }
+
+  /* ═══ COLLECTION ═══ */
+  .collection-section { padding-bottom:40px; animation: slide-up 0.5s 0.15s cubic-bezier(0.22,1,0.36,1) both; }
+  .collection-header { display:flex; align-items:center; justify-content:space-between; padding:0 2px; margin-bottom:12px; }
+  .collection-title {
+    font-size:12px; font-weight:500; letter-spacing:2px;
+    color:var(--text-light); display:flex; align-items:center; gap:7px; text-transform:uppercase;
+  }
+
+  .coll-icon {
+    font-size:16px; display:inline-block; cursor:default;
+    transition: transform 0.1s;
+  }
+  .coll-icon.pop {
+    animation: ice-pop 0.55s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  @keyframes ice-pop {
+    0%   { transform: rotate(0deg)   scale(1); }
+    20%  { transform: rotate(-12deg) scale(1.22); }
+    50%  { transform: rotate(10deg)  scale(1.15); }
+    75%  { transform: rotate(-6deg)  scale(1.05); }
+    100% { transform: rotate(0deg)   scale(1); }
+  }
+
+  .collection-count {
+    font-size:10px; letter-spacing:0.5px; color:var(--ca);
+    background: rgba(225,236,253,0.65); padding:2px 10px; border-radius:10px;
+    border: 1px solid rgba(189,218,234,0.45);
+  }
+  .card-list { display:flex; flex-direction:column; gap:10px; }
+  .card-empty { text-align:center; padding:40px 0; font-size:12px; color:rgba(126,155,181,0.55); letter-spacing:1px; }
+  .card-empty-icon { display:block; font-size:30px; margin-bottom:-13px; opacity:0.4; }
+
+  /* ═══ CARDS ═══ */
+  .card {
+    border-radius:var(--r); padding:14px 16px; cursor:pointer;
+    transition: all 0.32s cubic-bezier(0.22,1.2,0.36,1);
+    position:relative; overflow:hidden;
+    animation: card-in 0.4s cubic-bezier(0.22,1,0.36,1) both;
+    background: linear-gradient(155deg, rgba(255,255,255,0.86) 0%, rgba(241,248,255,0.74) 40%, rgba(220,232,248,0.62) 100%);
+    border: 1px solid rgba(255,255,255,0.92);
+    box-shadow:
+      0 1px 0 0 rgba(255,255,255,1) inset,
+      -1px 0 0 0 rgba(255,255,255,0.55) inset,
+      0 4px 24px rgba(138,170,222,0.1),
+      0 1px 4px rgba(155,180,223,0.08);
+  }
+  @keyframes card-in { from{opacity:0;transform:translateY(10px) scale(0.97)} to{opacity:1;transform:none} }
+
+  .card-grad-0 { --card-tint: rgba(189,218,234,0.28); }
+  .card-grad-1 { --card-tint: rgba(211,222,241,0.28); }
+  .card-grad-2 { --card-tint: rgba(225,236,253,0.32); }
+  .card-grad-3 { --card-tint: rgba(204,215,232,0.28); }
+  .card-grad-4 { --card-tint: rgba(235,244,255,0.32); }
+
+  .card-tint { position:absolute; inset:0; border-radius:inherit; background:var(--card-tint, rgba(189,218,234,0.2)); pointer-events:none; }
+  .card-noise {
+    position:absolute; inset:0; border-radius:inherit;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+    background-size:140px 140px; opacity:0.03; mix-blend-mode:overlay; pointer-events:none;
+  }
+  .card-shine {
+    position:absolute; inset:0; border-radius:inherit;
+    background: radial-gradient(circle 80px at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.22) 0%, transparent 70%);
+    opacity:0; transition:opacity 0.3s; pointer-events:none;
+  }
+  .card:hover .card-shine { opacity:1; }
+  .card:hover { transform:translateY(-3px) scale(1.006); box-shadow:0 1px 0 0 rgba(255,255,255,1) inset,-1px 0 0 0 rgba(255,255,255,0.6) inset,0 8px 32px rgba(138,170,222,0.18),0 3px 10px rgba(155,180,223,0.12); }
+  .card:active { transform:scale(0.97); }
+
+  .card-snowflakes { position:absolute; inset:0; border-radius:inherit; pointer-events:none; overflow:hidden; }
+
+  .card-inner { position:relative; z-index:2; }
+  .card-title { font-size:13.5px; font-weight:600; color:var(--text-dark); margin-bottom:3px; letter-spacing:0.3px; display:flex; align-items:center; justify-content:space-between; }
+  .card-del {
+    width:22px; height:22px; border-radius:50%;
+    border: 1px solid rgba(189,218,234,0.4); background:rgba(255,255,255,0.6);
+    color:var(--text-light); font-size:14px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; transition:all 0.22s; flex-shrink:0;
+  }
+  .card:hover .card-del { opacity:1; }
+  .card-del:hover { background:rgba(220,80,80,0.1); color:#c06; border-color:rgba(200,80,80,0.2); transform:rotate(8deg) scale(1.1); }
+  .card-date { font-size:10px; color:var(--text-light); opacity:0.7; margin-bottom:8px; letter-spacing:0.4px; }
+  .card-preview { font-family:'Menlo','Consolas',monospace; font-size:10px; line-height:1.55; color:var(--text); opacity:0.5; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; word-break:break-all; }
+
+  /* ═══ PREVIEW ═══ */
+  .preview-overlay { position:fixed; inset:0; z-index:999; background:var(--c2); display:none; flex-direction:column; }
+  .preview-overlay.show { display:flex; animation:fade-in 0.3s ease; }
+  @keyframes fade-in { from{opacity:0} to{opacity:1} }
+  .preview-topbar {
+    height:44px; background:rgba(243,251,254,0.88);
+    backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
+    border-bottom:1px solid rgba(255,255,255,0.7);
+    box-shadow:0 1px 0 rgba(189,218,234,0.3),0 2px 16px rgba(138,170,222,0.08);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 18px; flex-shrink:0; z-index:10;
+  }
+  .preview-title { font-size:12px; font-weight:500; color:var(--text-light); display:flex; align-items:center; gap:8px; letter-spacing:1.5px; }
+  .live-dot { width:7px; height:7px; border-radius:50%; background:var(--ca); box-shadow:0 0 0 2px rgba(155,180,223,0.25); animation:live-pulse 2.2s ease-in-out infinite; }
+  @keyframes live-pulse { 0%,100%{transform:scale(1);box-shadow:0 0 0 2px rgba(155,180,223,0.25)} 50%{transform:scale(0.75);box-shadow:0 0 0 2px rgba(155,180,223,0.05)} }
+
+  .live-snowflake {
+    font-size:15px;
+    color: var(--ca);
+    filter: drop-shadow(0 0 4px rgba(155,180,223,0.6));
+    animation: breathe 4s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(1);    opacity: 0.75; }
+    50%       { transform: scale(1.18); opacity: 1;    filter: drop-shadow(0 0 8px rgba(138,170,222,0.9)); }
+  }
+  .preview-frame { flex:1; border:none; width:100%; background:#fff; }
+  #fileInput { display:none; }
+
+  /* ═══ MODAL ═══ */
+  .modal-mask {
+    position:fixed; inset:0; background:rgba(36,51,73,0.22);
+    backdrop-filter:blur(12px) saturate(1.3); -webkit-backdrop-filter:blur(12px) saturate(1.3);
+    display:flex; align-items:center; justify-content:center;
+    z-index:600; padding:20px; opacity:0; pointer-events:none; transition:opacity 0.28s;
+  }
+  .modal-mask.show { opacity:1; pointer-events:all; }
+  .modal-box {
+    background: linear-gradient(160deg, rgba(255,255,255,0.95) 0%, rgba(235,244,255,0.9) 100%);
+    backdrop-filter:blur(28px); -webkit-backdrop-filter:blur(28px);
+    border-radius:var(--r); padding:24px; width:100%; max-width:320px;
+    border:1px solid rgba(255,255,255,0.92);
+    box-shadow:0 1px 0 rgba(255,255,255,1) inset,0 16px 56px rgba(138,170,222,0.22);
+    transform:scale(0.88) translateY(12px); transition:transform 0.32s cubic-bezier(0.34,1.56,0.64,1);
+    position:relative; overflow:hidden;
+  }
+  .modal-box::after {
+    content:''; position:absolute; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
+    background-size:160px 160px; opacity:0.03; mix-blend-mode:overlay; pointer-events:none;
+  }
+  .modal-mask.show .modal-box { transform:scale(1) translateY(0); }
+  .modal-label { font-size:14px; font-weight:600; color:var(--text-dark); margin-bottom:14px; letter-spacing:0.5px; position:relative; z-index:1; }
+  .modal-inp { width:100%; padding:10px 14px; border:1.5px solid rgba(189,218,234,0.5); border-radius:var(--r-sm); background:rgba(255,255,255,0.65); font-family:'MizuFont','Noto Sans SC',sans-serif; font-size:13px; color:var(--text-dark); outline:none; transition:all 0.22s; position:relative; z-index:1; }
+  .modal-inp:focus { border-color:var(--ca); background:rgba(255,255,255,0.88); box-shadow:0 0 0 3px rgba(155,180,223,0.18); }
+  .modal-btns { display:flex; justify-content:flex-end; gap:8px; margin-top:18px; position:relative; z-index:1; }
+
+  /* ═══ TOAST ═══ — 更透明，更小，两侧✟已在js中添加 */
+  .toast-wrap { position:fixed; top:60px; left:50%; transform:translateX(-50%); z-index:800; display:flex; flex-direction:column; align-items:center; gap:7px; pointer-events:none; }
+  .toast-item {
+    padding:8px 22px; border-radius:20px; font-size:9px; font-weight:500;
+    color:#fff; letter-spacing:0.5px;
+    background: linear-gradient(135deg, rgba(155,180,223,0.65), rgba(138,170,222,0.65)); /* 透明度降低 */
+    backdrop-filter:blur(8px); box-shadow:0 4px 22px rgba(138,170,222,0.38);
+    border:1px solid rgba(255,255,255,0.35);
+    animation:toast-in 0.32s cubic-bezier(0.34,1.56,0.64,1), toast-out 0.3s ease 1.85s forwards;
+    white-space:nowrap;
+  }
+  @keyframes toast-in  { from{opacity:0;transform:translateY(-14px) scale(0.82)} to{opacity:1;transform:none} }
+  @keyframes toast-out { from{opacity:1} to{opacity:0;transform:translateY(-8px)} }
+
+  /* ═══ SEARCH PANEL ═══ */
+  .search-panel {
+    position: fixed; inset: 0; z-index: 500;
+    display: flex; flex-direction: column;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .search-panel.show { opacity: 1; pointer-events: all; }
+
+  .search-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(36,51,73,0.18);
+    backdrop-filter: blur(10px) saturate(1.2);
+    -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  }
+
+  .search-box {
+    position: absolute; top: 60px; left: 16px; right: 16px;
+    background: linear-gradient(160deg, rgba(255,255,255,0.96) 0%, rgba(235,244,255,0.92) 100%);
+    backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+    border-radius: var(--r); padding: 16px;
+    border: 1px solid rgba(255,255,255,0.92);
+    box-shadow: 0 1px 0 rgba(255,255,255,1) inset, 0 16px 56px rgba(138,170,222,0.22);
+    transform: translateY(-8px) scale(0.97);
+    transition: transform 0.28s cubic-bezier(0.34,1.4,0.64,1);
+    max-height: 75vh; display: flex; flex-direction: column; gap: 12px;
+  }
+  .search-panel.show .search-box { transform: none; }
+
+  .search-input-wrap {
+    display: flex; align-items: center; gap: 8px;
+    border: 1.5px solid rgba(189,218,234,0.5);
+    border-radius: var(--r-sm);
+    background: rgba(255,255,255,0.65);
+    padding: 8px 12px;
+    transition: all 0.2s;
+  }
+  .search-input-wrap:focus-within {
+    border-color: var(--ca);
+    background: rgba(255,255,255,0.88);
+    box-shadow: 0 0 0 3px rgba(155,180,223,0.18);
+  }
+  .search-input-wrap svg { flex-shrink: 0; color: var(--text-light); }
+  .search-inp {
+    border: none; outline: none; background: transparent;
+    font-family: 'MizuFont','Noto Sans SC',sans-serif;
+    font-size: 13px; color: var(--text-dark); width: 100%;
+  }
+  .search-inp::placeholder { color: rgba(126,155,181,0.5); }
+  .search-close {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-light); font-size: 18px; line-height: 1;
+    padding: 0 2px; transition: color 0.2s;
+    flex-shrink: 0;
+  }
+  .search-close:hover { color: var(--text-dark); }
+
+  .search-results {
+    overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
+    max-height: 55vh;
+  }
+  .search-results::-webkit-scrollbar { width: 3px; }
+  .search-results::-webkit-scrollbar-thumb { background: rgba(189,218,234,0.55); border-radius: 2px; }
+
+  .search-hint {
+    text-align: center; font-size: 12px; color: rgba(126,155,181,0.55);
+    padding: 20px 0; letter-spacing: 0.5px;
+  }
+
+  .search-result-card {
+    padding: 10px 14px; border-radius: var(--r-sm); cursor: pointer;
+    background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(225,236,253,0.6) 100%);
+    border: 1px solid rgba(255,255,255,0.88);
+    box-shadow: 0 2px 8px rgba(138,170,222,0.08);
+    transition: all 0.2s;
+  }
+  .search-result-card:hover {
+    background: linear-gradient(135deg, rgba(225,236,253,0.9) 0%, rgba(189,218,234,0.6) 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(138,170,222,0.14);
+  }
+  .search-result-name {
+    font-size: 13px; font-weight: 600; color: var(--text-dark);
+    margin-bottom: 2px;
+  }
+  .search-result-name mark {
+    background: rgba(155,180,223,0.3); color: var(--cb);
+    border-radius: 2px; padding: 0 1px;
+  }
+  .search-result-date { font-size: 10px; color: var(--text-light); opacity: 0.7; }
+
+  /* ═══ CATEGORY BAR ═══ */
+  .cat-bar {
+    display: flex; align-items: center; gap: 7px;
+    overflow-x: auto; padding: 0 2px 10px;
+    scrollbar-width: none; -ms-overflow-style: none;
+    margin-bottom: 4px;
+  }
+  .cat-bar::-webkit-scrollbar { display: none; }
+
+  /* 分类标签缩小2px (原11px -> 9px) */
+  .cat-chip {
+    flex-shrink: 0;
+    font-family: 'MizuFont','Noto Sans SC',sans-serif;
+    font-size: 9px;
+    font-weight: 500; letter-spacing: 0.5px;
+    padding: 5px 13px; border-radius: 20px; cursor: pointer;
+    border: 1.5px solid rgba(189,218,234,0.45);
+    background: rgba(255,255,255,0.55);
+    color: var(--text-light);
+    transition: all 0.22s cubic-bezier(0.34,1.4,0.64,1);
+    white-space: nowrap; position: relative;
+    display: flex; align-items: center; gap: 5px;
+    overflow: hidden;
+  }
+  .cat-chip::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; height: 2px;
+    background: rgba(200,80,80,0.5);
+    width: 0%; transition: none;
+    border-radius: 0 0 20px 20px;
+  }
+  .cat-chip.pressing::after {
+    width: 100%; transition: width 1.2s linear;
+  }
+  .cat-chip:hover { background: rgba(225,236,253,0.75); border-color: var(--ca); color: var(--cb); transform: translateY(-1px); }
+  .cat-chip.active {
+    background: linear-gradient(135deg, var(--ca), var(--cb));
+    color: #fff; border-color: transparent;
+    box-shadow: 0 2px 10px rgba(138,170,222,0.35);
+  }
+  .cat-chip.active:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(138,170,222,0.45); }
+
+  .cat-add-btn {
+    flex-shrink: 0;
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1.5px dashed rgba(189,218,234,0.55);
+    background: rgba(255,255,255,0.4);
+    color: var(--text-light); font-size: 16px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.22s; line-height: 1;
+  }
+  .cat-add-btn:hover { border-color: var(--ca); color: var(--ca); background: rgba(225,236,253,0.6); transform: rotate(90deg) scale(1.1); }
+
+  .card-cat-badge {
+    display: inline-block;
+    font-size: 7px; letter-spacing: 0.5px;
+    padding: 1px 5px; border-radius: 6px;
+    background: rgba(155,180,223,0.18);
+    color: var(--cb); border: 1px solid rgba(155,180,223,0.25);
+    margin-left: 5px; vertical-align: middle;
+  }
+
+  @keyframes card-highlight {
+    0%   { box-shadow: 0 0 0 0 rgba(155,180,223,0.7), 0 4px 24px rgba(138,170,222,0.1); }
+    30%  { box-shadow: 0 0 0 4px rgba(155,180,223,0.4), 0 4px 24px rgba(138,170,222,0.2); }
+    100% { box-shadow: 0 0 0 0 rgba(155,180,223,0), 0 4px 24px rgba(138,170,222,0.1); }
+  }
+  .card.highlighted { animation: card-highlight 1.4s ease-out forwards !important; }
+
+  .modal-cat-label {
+    font-size: 11px; color: var(--text-light); letter-spacing: 1px;
+    margin: 12px 0 6px; display: block;
+  }
+  .modal-cat-select {
+    width: 100%; padding: 9px 12px;
+    border: 1.5px solid rgba(189,218,234,0.5);
+    border-radius: var(--r-sm);
+    background: rgba(255,255,255,0.65);
+    font-family: 'MizuFont','Noto Sans SC',sans-serif;
+    font-size: 12px; color: var(--text-dark);
+    outline: none; cursor: pointer;
+    transition: border-color 0.2s;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238AAADE' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+    padding-right: 30px; position: relative; z-index: 1;
+  }
+  .modal-cat-select:focus { border-color: var(--ca); box-shadow: 0 0 0 3px rgba(155,180,223,0.18); }
+
+  /* ═══ CALENDAR PANEL ═══ */
+  .cal-panel {
+    position: fixed; inset: 0; z-index: 500;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .cal-panel.show { opacity: 1; pointer-events: all; }
+
+  .cal-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(36,51,73,0.15);
+    backdrop-filter: blur(8px) saturate(1.2);
+    -webkit-backdrop-filter: blur(8px) saturate(1.2);
+  }
+
+  .cal-box {
+    position: absolute; top: 60px; right: 16px;
+    background: linear-gradient(160deg, rgba(255,255,255,0.97) 0%, rgba(235,244,255,0.93) 100%);
+    backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+    border-radius: var(--r); padding: 16px;
+    border: 1px solid rgba(255,255,255,0.92);
+    box-shadow: 0 1px 0 rgba(255,255,255,1) inset, 0 16px 56px rgba(138,170,222,0.24);
+    transform: translateY(-8px) scale(0.97);
+    transition: transform 0.28s cubic-bezier(0.34,1.4,0.64,1);
+    width: 260px;
+  }
+  .cal-panel.show .cal-box { transform: none; }
+
+  .cal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .cal-title {
+    font-size: 13px; font-weight: 600; color: var(--text-dark); letter-spacing: 1px;
+  }
+  .cal-nav {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-light); font-size: 16px; line-height: 1;
+    padding: 4px 8px; border-radius: 8px; transition: all 0.18s;
+  }
+  .cal-nav:hover { background: rgba(225,236,253,0.7); color: var(--cb); }
+
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+    text-align: center;
+  }
+  .cal-weekday {
+    font-size: 9px; color: var(--text-light); letter-spacing: 0.5px;
+    padding: 2px 0 5px; opacity: 0.65;
+  }
+  .cal-day {
+    font-size: 11px; font-weight: 500; color: var(--text);
+    padding: 5px 2px; border-radius: 8px; cursor: pointer;
+    position: relative; transition: all 0.18s;
+    border: 1.5px solid transparent;
+  }
+  .cal-day:hover { background: rgba(225,236,253,0.8); color: var(--cb); }
+  .cal-day.empty { cursor: default; }
+  .cal-day.empty:hover { background: none; }
+  .cal-day.today {
+    border-color: rgba(155,180,223,0.45);
+    color: var(--cb); font-weight: 600;
+  }
+  .cal-day.has-cards::after {
+    content: '';
+    position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--ca); opacity: 0.8;
+  }
+  .cal-day.selected {
+    background: linear-gradient(135deg, var(--ca), var(--cb));
+    color: #fff !important; border-color: transparent;
+    box-shadow: 0 2px 8px rgba(138,170,222,0.35);
+  }
+  .cal-day.selected::after { background: rgba(255,255,255,0.7); }
+  .cal-day.muted { opacity: 0.28; }
+
+  .cal-filter-hint {
+    text-align: center; font-size: 10px; color: var(--text-light);
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid rgba(189,218,234,0.25);
+    letter-spacing: 0.5px;
+  }
+  .cal-clear {
+    display: inline-block; margin-top: 4px; cursor: pointer;
+    color: var(--cb); font-size: 10px; text-decoration: underline;
+    background: none; border: none;
+    font-family: 'MizuFont','Noto Sans SC',sans-serif;
+  }
+
+  @media (min-width:600px) { .editor-page { max-width:580px; margin:0 auto; } }
+</style>
+</head>
+<body>
+
+<div class="bg">
+  <div class="bg-glow"></div>
+  <div class="bg-grain"></div>
+</div>
+
+<div class="bubble-layer" id="bubbleLayer"></div>
+
+<div class="page-wrap">
+
+  <!-- 顶部栏 -->
+  <div class="topbar">
+    <div class="app-title">
+      <span class="app-title-emoji">❄️</span>水色玻璃纸
+    </div>
+    <div class="topbar-btns">
+      <button class="tb tb-run" id="tbImport">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;margin-top:-1px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>导入
+      </button>
+      <button class="tb tb-edit" id="tbEdit">编辑</button>
+      <button class="tb tb-ghost" id="tbDate">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;margin-top:-1px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>日期
+      </button>
+      <button class="tb tb-ghost" id="tbSearch">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;margin-top:-1px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>搜索
+      </button>
+    </div>
+  </div>
+
+  <!-- 编辑器页面 -->
+  <div class="editor-page" id="editorPage">
+
+    <!-- 编辑区 -->
+    <div class="editor-section glass">
+      <div class="deco-snowflakes" id="editorDeco"></div>
+
+      <div class="editor-toolbar">
+        <span class="editor-label">
+          <span class="label-dot"></span>编辑区
+        </span>
+        <div class="editor-actions">
+          <button class="ea" id="btnCopy">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>复制
+          </button>
+          <button class="ea" id="btnClear">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>清空
+          </button>
+          <button class="ea" id="btnExpand">
+            <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>展开
+          </button>
+          <button class="ea" id="btnSaveCard">
+            <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>存卡片
+          </button>
+        </div>
+      </div>
+      <textarea class="code-area" id="codeArea" spellcheck="false" placeholder="在这里粘贴或编写你的 HTML 代码 |･ω･｀)"></textarea>
+    </div>
+
+    <!-- 运行按钮 -->
+    <div class="run-fab-wrap">
+      <button class="run-fab" id="runFab" title="运行预览">
+        <span class="fab-ring"></span>
+        <span class="fab-ring-2"></span>
+        <img src="https://i.postimg.cc/wMWm7txD/无标题28_20260223164951.png" style="width:28px;height:28px;object-fit:contain;position:relative;z-index:2;" />
+      </button>
+    </div>
+
+    <!-- 收藏匣 -->
+    <div class="collection-section">
+      <div class="collection-header">
+        <span class="collection-title">
+          <span class="coll-icon" id="collIcon"><img src="https://i.postimg.cc/8P2hW6Bh/wu-biao-ti28-20260223170833.png" style="width:22px;height:22px;object-fit:contain;display:block;"></span>收藏匣
+        </span>
+        <span class="collection-count" id="cardCount"></span>
+      </div>
+      <div class="cat-bar" id="catBar"></div>
+      <div class="card-list" id="cardList">
+        <div class="card-empty">
+          <span class="card-empty-icon"><img src="https://i.postimg.cc/8c6nBrsS/wu-biao-ti29-20260223174721.png" style="width:38px;height:38px;object-fit:contain;opacity:0.5;"></span>
+          还没有保存的卡片哦
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 全屏预览 -->
+<div class="preview-overlay" id="previewOverlay">
+  <div class="preview-topbar">
+    <div class="preview-title"><i class="fa-regular fa-snowflake live-snowflake"></i>预览中</div>
+    <button class="tb tb-edit" id="previewBack" style="display:flex;">编辑</button>
+  </div>
+  <iframe class="preview-frame" id="previewFrame" sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-popups"></iframe>
+</div>
+
+<!-- 弹窗 -->
+<div class="modal-mask" id="modalMask">
+  <div class="modal-box">
+    <div class="modal-label" id="modalLabel">保存卡片</div>
+    <input class="modal-inp" id="modalInp" placeholder="给卡片起个名字" maxlength="50" />
+    <span class="modal-cat-label" id="modalCatLabel" style="display:none">放入分类</span>
+    <select class="modal-cat-select" id="modalCatSelect" style="display:none"></select>
+    <div class="modal-btns">
+      <button class="tb tb-ghost" id="modalNo">取消</button>
+      <button class="tb tb-run" id="modalYes">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 搜索面板 -->
+<div class="search-panel" id="searchPanel">
+  <div class="search-backdrop" id="searchBackdrop"></div>
+  <div class="search-box">
+    <div class="search-input-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-inp" id="searchInp" placeholder="搜索卡片名称或内容…" maxlength="50" autocomplete="off" />
+      <button class="search-close" id="searchClose">×</button>
+    </div>
+    <div class="search-results" id="searchResults">
+      <div class="search-hint">输入关键字搜索收藏匣里的卡片</div>
+    </div>
+  </div>
+</div>
+
+<!-- 日历面板 -->
+<div class="cal-panel" id="calPanel">
+  <div class="cal-backdrop" id="calBackdrop"></div>
+  <div class="cal-box">
+    <div class="cal-header">
+      <button class="cal-nav" id="calPrev">‹</button>
+      <div class="cal-title" id="calTitle"></div>
+      <button class="cal-nav" id="calNext">›</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-filter-hint" id="calHint" style="display:none">
+      <span id="calHintText"></span><br>
+      <button class="cal-clear" id="calClear">清除筛选</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+<input type="file" id="fileInput" accept=".html,.htm,.txt" />
+
+<script>
+(() => {
+
+  /* ─── 雪花角落装饰 ─── */
+  function addSnowflakeDeco(container, configs) {
+    configs.forEach(cfg => {
+      const el = document.createElement('i');
+      el.className = 'fa-regular fa-snowflake deco-flake';
+      const pos = [];
+      if (cfg.bottom !== undefined) pos.push(`bottom:${cfg.bottom}`);
+      if (cfg.top    !== undefined) pos.push(`top:${cfg.top}`);
+      if (cfg.right  !== undefined) pos.push(`right:${cfg.right}`);
+      if (cfg.left   !== undefined) pos.push(`left:${cfg.left}`);
+      el.style.cssText = `
+        ${pos.join(';')};
+        font-size:${cfg.size}px;
+        opacity:${cfg.opacity};
+        transform:rotate(${cfg.rotate || 0}deg);
+        color:${cfg.color || '#9BB4DF'};
+      `;
+      container.appendChild(el);
+    });
+  }
+
+  addSnowflakeDeco(document.getElementById('editorDeco'), [
+    { bottom:'14px',  right:'18px',  size:120, opacity:0.13, rotate:15,  color:'#9BB4DF' },
+    { bottom:'110px', right:'24px',  size:58,  opacity:0.08, rotate:-8,  color:'#BDDAEA' },
+    { top:'10px',     right:'10px',  size:36,  opacity:0.06, rotate:30,  color:'#8AAADE' },
+  ]);
+
+  /* ─── 气泡生成 ─── */
+  function spawnBubbles() {
+    const layer = document.getElementById('bubbleLayer');
+    const configs = [
+      { size:70,  left:6,   dur:26, delay:-4  },
+      { size:46,  left:20,  dur:21, delay:-13, shimmer:true },
+      { size:88,  left:38,  dur:34, delay:-2,  shimmer:true },
+      { size:36,  left:53,  dur:18, delay:-20 },
+      { size:62,  left:66,  dur:25, delay:-9,  shimmer:true },
+      { size:50,  left:80,  dur:23, delay:-16 },
+      { size:80,  left:14,  dur:31, delay:-24, shimmer:true },
+      { size:42,  left:74,  dur:20, delay:-7  },
+      { size:56,  left:90,  dur:29, delay:-11, shimmer:true },
+      { size:34,  left:46,  dur:17, delay:-28 },
+      { size:74,  left:31,  dur:33, delay:-3,  shimmer:true },
+      { size:40,  left:58,  dur:19, delay:-32 },
+    ];
+    configs.forEach(cfg => {
+      const b = document.createElement('div');
+      b.className = 'bubble' + (cfg.shimmer ? ' shimmer' : '');
+      b.style.cssText = `
+        width:${cfg.size}px;
+        height:${cfg.size}px;
+        left:${cfg.left}%;
+        bottom:-${cfg.size + 16}px;
+        animation-duration:${cfg.dur}s;
+        animation-delay:${cfg.delay}s;
+      `;
+      layer.appendChild(b);
+    });
+  }
+  spawnBubbles();
+
+  /* ─── 点击气泡戳破 (捕获阶段检测) ─── */
+  document.addEventListener('click', (e) => {
+    const bubbles = [...document.querySelectorAll('.bubble')];
+    if (!bubbles.length) return;
+    const { clientX, clientY } = e;
+    // 从后往前遍历，使上层气泡优先命中（视觉上层即后面的元素）
+    for (let i = bubbles.length - 1; i >= 0; i--) {
+      const b = bubbles[i];
+      const rect = b.getBoundingClientRect();
+      const radius = rect.width / 2;
+      const centerX = rect.left + radius;
+      const centerY = rect.top + radius;
+      const dx = clientX - centerX;
+      const dy = clientY - centerY;
+      if (dx * dx + dy * dy <= radius * radius) {
+        // 点击到气泡，阻止事件传播（避免触发下方按钮）
+        e.stopPropagation();
+        e.preventDefault();
+        // 破裂动画
+        b.classList.add('pop');
+        b.addEventListener('animationend', () => b.remove(), { once: true });
+        break; // 只戳破最上层的一个
+      }
+    }
+  }, { capture: true }); // 捕获阶段拦截
+
+  /* ─── 其他原有功能 ─── */
+  const collIcon = document.getElementById('collIcon');
+  collIcon.addEventListener('click', () => {
+    collIcon.classList.remove('pop');
+    void collIcon.offsetWidth;
+    collIcon.classList.add('pop');
+  });
+  collIcon.addEventListener('animationend', () => collIcon.classList.remove('pop'));
+
+  let audioCtx = null;
+  function getCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function playSaveSfx() {
+    try {
+      const ctx = getCtx();
+      [1047, 1319, 1568].forEach((f, i) => {
+        const osc = ctx.createOscillator(), g = ctx.createGain();
+        osc.connect(g); g.connect(ctx.destination);
+        osc.type = 'sine';
+        const t = ctx.currentTime + i * 0.06;
+        osc.frequency.setValueAtTime(f, t);
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.18, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.9);
+        osc.start(t); osc.stop(t + 0.95);
+      });
+    } catch(e) {}
+  }
+  function playRunSfx() {
+    try {
+      const ctx = getCtx();
+      [[220, 0.25, 'sine'], [880, 0.12, 'triangle']].forEach(([f, v, type]) => {
+        const osc = ctx.createOscillator(), g = ctx.createGain();
+        osc.connect(g); g.connect(ctx.destination);
+        osc.type = type;
+        const t = ctx.currentTime;
+        osc.frequency.setValueAtTime(f, t);
+        osc.frequency.exponentialRampToValueAtTime(f * 1.8, t + 0.05);
+        g.gain.setValueAtTime(v, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+        osc.start(t); osc.stop(t + 0.4);
+      });
+    } catch(e) {}
+  }
+
+  document.addEventListener('mousemove', e => {
+    document.querySelectorAll('.card').forEach(card => {
+      const rect = card.getBoundingClientRect();
+      const shine = card.querySelector('.card-shine');
+      if (shine) {
+        shine.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100).toFixed(1) + '%');
+        shine.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100).toFixed(1) + '%');
+      }
+    });
+  });
+
+  const fabEl = document.getElementById('runFab');
+  const r1 = fabEl.querySelector('.fab-ring');
+  const r2 = fabEl.querySelector('.fab-ring-2');
+  r1.style.animationDuration = '10s';
+  r2.style.animationDuration = '16s';
+  fabEl.addEventListener('mouseenter', () => { r1.style.animationDuration = '4s'; r2.style.animationDuration = '6s'; });
+  fabEl.addEventListener('mouseleave', () => { r1.style.animationDuration = '10s'; r2.style.animationDuration = '16s'; });
+  fabEl.addEventListener('click', function(e) {
+    const rp = document.createElement('span');
+    rp.className = 'fab-ripple';
+    const rect = this.getBoundingClientRect(), s = Math.max(rect.width, rect.height);
+    rp.style.cssText = `width:${s}px;height:${s}px;left:${e.clientX-rect.left-s/2}px;top:${e.clientY-rect.top-s/2}px`;
+    this.appendChild(rp);
+    setTimeout(() => rp.remove(), 600);
+  });
+
+  const LS_KEY      = 'mizu_glass_v4';
+  const LS_CAT_KEY  = 'mizu_cats_v4';
+
+  const codeArea       = document.getElementById('codeArea');
+  const cardList       = document.getElementById('cardList');
+  const cardCount      = document.getElementById('cardCount');
+  const catBar         = document.getElementById('catBar');
+  const previewOverlay = document.getElementById('previewOverlay');
+  const previewFrame   = document.getElementById('previewFrame');
+  const editorPage     = document.getElementById('editorPage');
+  const modalMask      = document.getElementById('modalMask');
+  const modalInp       = document.getElementById('modalInp');
+  const modalLabel     = document.getElementById('modalLabel');
+  const modalCatLabel  = document.getElementById('modalCatLabel');
+  const modalCatSelect = document.getElementById('modalCatSelect');
+  const fileInput      = document.getElementById('fileInput');
+  const tbEdit         = document.getElementById('tbEdit');
+  const btnExpand      = document.getElementById('btnExpand');
+
+  let cards = [], categories = [], activeCat = '__all__';
+  let expanded = false, modalCb = null, modalMode = 'simple';
+
+  function load() {
+    try { cards = JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch { cards = []; }
+    try { categories = JSON.parse(localStorage.getItem(LS_CAT_KEY)) || []; } catch { categories = []; }
+  }
+  function save() {
+    localStorage.setItem(LS_KEY, JSON.stringify(cards));
+    localStorage.setItem(LS_CAT_KEY, JSON.stringify(categories));
+  }
+
+  function toast(msg) {
+    const el = document.createElement('div');
+    el.className = 'toast-item';
+    el.textContent = `✟${msg}✟`;  // 两侧加✟
+    document.getElementById('toastWrap').appendChild(el);
+    setTimeout(() => el.remove(), 2200);
+  }
+
+  function showModal(label, ph, cb, withCat = false) {
+    modalLabel.textContent = label;
+    modalInp.placeholder = ph || '';
+    modalInp.value = '';
+    modalMode = withCat ? 'withCat' : 'simple';
+    modalCb = cb;
+    if (withCat) {
+      modalCatLabel.style.display = 'block';
+      modalCatSelect.style.display = 'block';
+      modalCatSelect.innerHTML =
+        `<option value="">— 不分类 —</option>` +
+        categories.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+      if (activeCat !== '__all__' && categories.includes(activeCat)) {
+        modalCatSelect.value = activeCat;
+      }
+    } else {
+      modalCatLabel.style.display = 'none';
+      modalCatSelect.style.display = 'none';
+    }
+    modalMask.classList.add('show');
+    setTimeout(() => modalInp.focus(), 160);
+  }
+  function hideModal() {
+    modalMask.classList.remove('show');
+    modalCb = null;
+  }
+  document.getElementById('modalNo').onclick = hideModal;
+  document.getElementById('modalYes').onclick = () => {
+    if (modalCb) modalCb(modalInp.value.trim(), modalCatSelect.value);
+    hideModal();
+  };
+  modalInp.onkeydown = e => {
+    if (e.key === 'Enter') document.getElementById('modalYes').click();
+    if (e.key === 'Escape') hideModal();
+  };
+  modalMask.onclick = e => { if (e.target === modalMask) hideModal(); };
+
+  function fmtDate(ts) {
+    const d = new Date(ts), p = n => String(n).padStart(2,'0');
+    return `${d.getFullYear()}/${p(d.getMonth()+1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function renderCatBar() {
+    catBar.innerHTML = '';
+    const allChip = document.createElement('button');
+    allChip.className = 'cat-chip' + (activeCat === '__all__' ? ' active' : '');
+    allChip.textContent = '全部';
+    allChip.onclick = () => { activeCat = '__all__'; renderCatBar(); renderCards(); };
+    catBar.appendChild(allChip);
+
+    categories.forEach(cat => {
+      const chip = document.createElement('button');
+      chip.className = 'cat-chip' + (activeCat === cat ? ' active' : '');
+      chip.textContent = cat;
+      chip.addEventListener('click', () => {
+        activeCat = cat; renderCatBar(); renderCards();
+      });
+      let pressTimer, deleteTimer, pressing = false;
+      chip.addEventListener('pointerdown', e => {
+        pressing = true;
+        chip.classList.add('pressing');
+        pressTimer = setTimeout(() => {
+          if (!pressing) return;
+          toast('继续长按删除…');
+        }, 600);
+        deleteTimer = setTimeout(() => {
+          if (!pressing) return;
+          chip.classList.remove('pressing');
+          pressing = false;
+          if (!confirm(`确定长按删除分类「${cat}」吗？（卡片不会被删除）`)) return;
+          cards.forEach(c => { if (c.cat === cat) c.cat = ''; });
+          categories = categories.filter(c => c !== cat);
+          if (activeCat === cat) activeCat = '__all__';
+          save(); renderCatBar(); renderCards();
+          toast(`已删除分类「${cat}」`);
+        }, 1200);
+      });
+      const cancelPress = () => {
+        pressing = false;
+        clearTimeout(pressTimer);
+        clearTimeout(deleteTimer);
+        chip.classList.remove('pressing');
+      };
+      chip.addEventListener('pointerup', cancelPress);
+      chip.addEventListener('pointerleave', cancelPress);
+      chip.addEventListener('pointercancel', cancelPress);
+      catBar.appendChild(chip);
+    });
+
+    const addBtn = document.createElement('button');
+    addBtn.className = 'cat-add-btn';
+    addBtn.title = '新建分类';
+    addBtn.textContent = '+';
+    addBtn.onclick = () => {
+      showModal('新建分类', '给分类起个名字…', name => {
+        if (!name) return;
+        if (categories.includes(name)) { toast('已有同名分类'); return; }
+        categories.push(name);
+        activeCat = name;
+        save(); renderCatBar(); renderCards();
+        toast(`已创建分类「${name}」`);
+      });
+    };
+    catBar.appendChild(addBtn);
+  }
+
+  const cardSnowConfigs = [
+    [{ bottom:'-16px', right:'-14px', size:80,  opacity:0.1,  rotate:20,  color:'#9BB4DF' },
+     { top:'-10px',    left:'-8px',   size:44,  opacity:0.07, rotate:-15, color:'#BDDAEA' }],
+    [{ bottom:'-14px', right:'-12px', size:72,  opacity:0.09, rotate:-10, color:'#8AAADE' },
+     { bottom:'24px',  right:'38px',  size:32,  opacity:0.06, rotate:35,  color:'#9BB4DF' }],
+    [{ bottom:'-18px', right:'-16px', size:88,  opacity:0.1,  rotate:5,   color:'#BDDAEA' },
+     { top:'-12px',    left:'-10px',  size:50,  opacity:0.07, rotate:25,  color:'#8AAADE' }],
+    [{ bottom:'-14px', right:'-12px', size:76,  opacity:0.09, rotate:-20, color:'#9BB4DF' }],
+    [{ bottom:'-16px', right:'-14px', size:82,  opacity:0.1,  rotate:12,  color:'#BDDAEA' },
+     { top:'-10px',    left:'-8px',   size:42,  opacity:0.06, rotate:-8,  color:'#8AAADE' }],
+  ];
+
+  let activeDate = null;
+  function renderCards(highlightTime = null) {
+    let filtered = activeCat === '__all__'
+      ? [...cards]
+      : cards.filter(c => (c.cat || '') === activeCat);
+    if (activeDate) {
+      filtered = filtered.filter(c => dayKey(c.time) === activeDate);
+    }
+    const totalStr = cards.length
+      ? (filtered.length === cards.length ? `${cards.length} 张` : `${filtered.length} / ${cards.length} 张`)
+      : '';
+    cardCount.textContent = totalStr;
+
+    if (!filtered.length) {
+      let emptyMsg = '还没有保存的卡片哦';
+      if (activeDate) {
+        const [y,m,d] = activeDate.split('-');
+        emptyMsg = `${y}/${m}/${d} 没有保存的卡片`;
+      } else if (activeCat !== '__all__') {
+        emptyMsg = `「${activeCat}」里还没有卡片`;
+      }
+      cardList.innerHTML = `<div class="card-empty"><span class="card-empty-icon"><img src="https://i.postimg.cc/8c6nBrsS/wu-biao-ti29-20260223174721.png" style="width:38px;height:38px;object-fit:contain;opacity:0.5;"></span>${emptyMsg}</div>`;
+      return;
+    }
+
+    cardList.innerHTML = '';
+    filtered.sort((a,b) => b.time - a.time);
+    filtered.forEach((c, i) => {
+      const el = document.createElement('div');
+      el.className = `card card-grad-${i % 5}`;
+      el.dataset.time = c.time;
+      el.style.animationDelay = `${i * 0.055}s`;
+
+      const catBadge = (c.cat && activeCat === '__all__')
+        ? `<span class="card-cat-badge">${esc(c.cat)}</span>` : '';
+      const preview = c.code.length > 120 ? c.code.slice(0,120) + '…' : c.code;
+
+      el.innerHTML = `
+        <div class="card-tint"></div>
+        <div class="card-noise"></div>
+        <div class="card-snowflakes" id="csnow_${c.time}"></div>
+        <div class="card-shine"></div>
+        <div class="card-inner">
+          <div class="card-title">
+            <span>${esc(c.name)}</span>
+            <button class="card-del" title="删除">×</button>
+          </div>
+          <div class="card-date">${fmtDate(c.time)}${catBadge}</div>
+          <div class="card-preview">${esc(preview)}</div>
+        </div>`;
+
+      addSnowflakeDeco(el.querySelector(`#csnow_${c.time}`), cardSnowConfigs[i % 5]);
+
+      el.addEventListener('click', e => {
+        if (e.target.classList.contains('card-del')) return;
+        codeArea.value = c.code;
+        toast(`已加载「${c.name}」`);
+        window.scrollTo({ top:0, behavior:'smooth' });
+      });
+
+      el.querySelector('.card-del').addEventListener('click', e => {
+        e.stopPropagation();
+        if (confirm(`确定要删除卡片「${c.name}」吗？`)) {
+          cards = cards.filter(x => x.time !== c.time);
+          save(); renderCatBar(); renderCards();
+          toast('已删除');
+        }
+      });
+
+      cardList.appendChild(el);
+
+      if (highlightTime && c.time === highlightTime) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior:'smooth', block:'center' });
+          setTimeout(() => {
+            el.classList.remove('card-in');
+            el.classList.add('highlighted');
+            setTimeout(() => el.classList.remove('highlighted'), 1500);
+          }, 400);
+        }, 80);
+      }
+    });
+  }
+
+  const searchPanel   = document.getElementById('searchPanel');
+  const searchInp     = document.getElementById('searchInp');
+  const searchResults = document.getElementById('searchResults');
+
+  function openSearch() {
+    searchPanel.classList.add('show');
+    setTimeout(() => searchInp.focus(), 120);
+    renderSearch('');
+  }
+  function closeSearch() {
+    searchPanel.classList.remove('show');
+    searchInp.value = '';
+  }
+
+  function hlText(text, kw) {
+    if (!kw) return esc(text);
+    const re = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
+    return esc(text).replace(re, m => `<mark>${m}</mark>`);
+  }
+
+  function loadCardAndJump(card) {
+    codeArea.value = card.code;
+    closeSearch();
+    const targetCat = card.cat || '';
+    if (targetCat && categories.includes(targetCat)) {
+      activeCat = targetCat;
+    } else {
+      activeCat = '__all__';
+    }
+    renderCatBar();
+    renderCards(card.time);
+    toast(`已加载「${card.name}」`);
+  }
+
+  function renderSearch(kw) {
+    const q = kw.trim().toLowerCase();
+    if (!q) {
+      searchResults.innerHTML = '<div class="search-hint">输入关键字搜索收藏匣里的卡片</div>';
+      return;
+    }
+    const hits = cards.filter(c =>
+      c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q)
+    );
+    if (!hits.length) {
+      searchResults.innerHTML = `<div class="search-hint">没有找到「${esc(kw)}」相关的卡片 ×ω×?</div>`;
+      return;
+    }
+    searchResults.innerHTML = hits.map(c => {
+      const catTag = c.cat ? `<span style="font-size:9px;color:var(--ca);margin-left:5px;padding:1px 6px;border-radius:6px;background:rgba(155,180,223,0.15);border:1px solid rgba(155,180,223,0.22)">${esc(c.cat)}</span>` : '';
+      return `<div class="search-result-card" data-time="${c.time}">
+        <div class="search-result-name">${hlText(c.name, kw)}${catTag}</div>
+        <div class="search-result-date">${fmtDate(c.time)}</div>
+      </div>`;
+    }).join('');
+
+    searchResults.querySelectorAll('.search-result-card').forEach(el => {
+      el.addEventListener('click', () => {
+        const card = cards.find(c => c.time === Number(el.dataset.time));
+        if (card) loadCardAndJump(card);
+      });
+    });
+  }
+
+  function runCode() {
+    const code = codeArea.value;
+    if (!code.trim()) { toast('代码是空的哦Σ(･ω･ﾉ)ﾉ'); return; }
+    playRunSfx();
+    previewFrame.srcdoc = code;
+    previewOverlay.classList.add('show');
+    editorPage.style.display = 'none';
+    document.getElementById('tbImport').style.display = 'none';
+    tbEdit.style.display = 'inline-flex';
+  }
+  function backToEdit() {
+    previewOverlay.classList.remove('show');
+    editorPage.style.display = 'flex';
+    document.getElementById('tbImport').style.display = 'inline-flex';
+    tbEdit.style.display = 'none';
+    previewFrame.srcdoc = '';
+  }
+
+  function dayKey(ts) {
+    const d = new Date(ts);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  const calPanel    = document.getElementById('calPanel');
+  const calGrid     = document.getElementById('calGrid');
+  const calTitle    = document.getElementById('calTitle');
+  const calHint     = document.getElementById('calHint');
+  const calHintText = document.getElementById('calHintText');
+  let calYear  = new Date().getFullYear();
+  let calMonth = new Date().getMonth();
+
+  function renderCal() {
+    const weekdays = ['日','一','二','三','四','五','六'];
+    const months   = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+    calTitle.textContent = `${calYear}年 ${months[calMonth]}`;
+
+    const daysWithCards = new Set();
+    cards.forEach(c => {
+      const d = new Date(c.time);
+      if (d.getFullYear() === calYear && d.getMonth() === calMonth)
+        daysWithCards.add(d.getDate());
+    });
+
+    const today    = new Date();
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+
+    calGrid.innerHTML = weekdays.map(w => `<div class="cal-weekday">${w}</div>`).join('');
+    for (let i = 0; i < firstDay; i++)
+      calGrid.innerHTML += `<div class="cal-day empty"></div>`;
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday    = today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===d;
+      const hasCards   = daysWithCards.has(d);
+      const isSelected = activeDate === dateStr;
+      const cls = ['cal-day', isToday?'today':'', hasCards?'has-cards':'', isSelected?'selected':'', !hasCards?'muted':''].filter(Boolean).join(' ');
+      calGrid.innerHTML += `<div class="${cls}" data-date="${dateStr}">${d}</div>`;
+    }
+
+    calGrid.querySelectorAll('.cal-day:not(.empty)').forEach(el => {
+      el.addEventListener('click', () => {
+        const date = el.dataset.date;
+        activeDate = (activeDate === date) ? null : date;
+        if (activeDate) {
+          const [y,m,d] = activeDate.split('-');
+          calHintText.textContent = `${y}/${m}/${d} 的卡片`;
+          calHint.style.display = 'block';
+        } else {
+          calHint.style.display = 'none';
+        }
+        renderCal(); renderCards();
+      });
+    });
+
+    if (activeDate) {
+      const [y,m,d] = activeDate.split('-');
+      calHintText.textContent = `${y}/${m}/${d} 的卡片`;
+      calHint.style.display = 'block';
+    } else {
+      calHint.style.display = 'none';
+    }
+  }
+
+  function openCal() {
+    calYear = new Date().getFullYear();
+    calMonth = new Date().getMonth();
+    renderCal();
+    calPanel.classList.add('show');
+  }
+  function closeCal() { calPanel.classList.remove('show'); }
+
+  function bindEvents() {
+    fabEl.addEventListener('click', runCode);
+    tbEdit.onclick = backToEdit;
+    document.getElementById('previewBack').onclick = backToEdit;
+
+    document.getElementById('tbImport').onclick = () => fileInput.click();
+    fileInput.onchange = e => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = re => { codeArea.value = re.target.result; toast(`已导入: ${file.name}`); };
+        reader.readAsText(file);
+      }
+      e.target.value = '';
+    };
+
+    document.getElementById('tbDate').onclick = openCal;
+    document.getElementById('calBackdrop').onclick = closeCal;
+    document.getElementById('calPrev').onclick = () => {
+      calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCal();
+    };
+    document.getElementById('calNext').onclick = () => {
+      calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCal();
+    };
+    document.getElementById('calClear').onclick = () => {
+      activeDate = null; renderCal(); renderCards();
+    };
+
+    document.getElementById('tbSearch').onclick = openSearch;
+    document.getElementById('searchClose').onclick = closeSearch;
+    document.getElementById('searchBackdrop').onclick = closeSearch;
+    searchInp.addEventListener('input', () => renderSearch(searchInp.value));
+    searchInp.addEventListener('keydown', e => { if (e.key === 'Escape') closeSearch(); });
+
+    document.getElementById('btnCopy').onclick = () => {
+      if (!codeArea.value) { toast('没什么可以复制的'); return; }
+      navigator.clipboard.writeText(codeArea.value).then(() => toast('已复制到剪贴板'));
+    };
+    document.getElementById('btnClear').onclick = () => {
+      if (codeArea.value && confirm('确定要清空编辑区吗？')) codeArea.value = '';
+    };
+    btnExpand.onclick = () => {
+      expanded = !expanded;
+      codeArea.classList.toggle('expanded', expanded);
+      btnExpand.innerHTML = expanded
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="11" height="11"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>收起`
+        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="11" height="11"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>展开`;
+    };
+
+    document.getElementById('btnSaveCard').onclick = () => {
+      const code = codeArea.value.trim();
+      if (!code) { toast('代码是空的，不能保存哦'); return; }
+      showModal('保存卡片', '给卡片起个名字', (name, cat) => {
+        if (!name) { toast('需要一个名字才能保存'); return; }
+        cards.push({ name, code, time:Date.now(), cat: cat || '' });
+        save(); renderCatBar(); renderCards(); playSaveSfx();
+        toast(`已保存为「${name}」`);
+      }, true);
+    };
+
+    codeArea.addEventListener('keydown', e => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const s = e.target.selectionStart, en = e.target.selectionEnd;
+        e.target.value = e.target.value.slice(0,s) + '  ' + e.target.value.slice(en);
+        e.target.selectionStart = e.target.selectionEnd = s + 2;
+      }
+    });
+  }
+
+  load(); renderCatBar(); renderCards(); bindEvents();
+})();
+</script>
+</body>
+</html>
